@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _moveSpeed = 20f;
 
     private Rigidbody2D _playerRigidBody;
+    private Vector2 _input;
     
     private void Awake()
     {
@@ -13,10 +14,14 @@ public class PlayerController : MonoBehaviour
         _playerRigidBody = GetComponent<Rigidbody2D>();
     }
 
+    private void Update()
+    {
+        _input = new Vector2(Input.GetAxis("Horizontal"), 0);
+    }
+
     private void FixedUpdate()
     {
-        float inputX = Input.GetAxis("Horizontal");
-        Move(new Vector2(inputX, 0));
+        Move(_input);
     }
 
     private void Move(Vector2 direction)
