@@ -1,14 +1,26 @@
 using System;
+using System.Collections;
+using System.ComponentModel;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    private readonly int HorizontalValueHash = Animator.StringToHash("HorizontalValue");
+    private readonly int VerticalValueHash = Animator.StringToHash("VerticalValue");
+    private readonly int IsInAirHash = Animator.StringToHash("IsInAir");
+    private readonly int TextFly = Animator.StringToHash("TextFly");
+    
     [SerializeField] private float _moveSpeed = 20f;
     [Header("Jump")]
     [SerializeField] private float _jumpTime = 0.4f;
     [SerializeField] private float _jumpPower = 220f;
     [SerializeField] private float _fallMultiplier = 50f;
     [SerializeField] private float _jumpMultiplier = 30f;
+    [Header("UI")] 
+    [SerializeField] private TextMeshProUGUI _playerText;
+    [SerializeField] private Animator _textAnimator;
     
 
     private Rigidbody2D _playerRigidBody;
@@ -17,12 +29,15 @@ public class PlayerController : MonoBehaviour
     private Vector2 _gravityVector;
     private float _jumpCounter;
     private BoxCollider2D _boxCollider2D;
+    private Animator _playerAnimator;
+    private Coroutine _corShowText;
     
     private void Awake()
     {
         Physics2D.queriesStartInColliders = false;
         _playerRigidBody = GetComponent<Rigidbody2D>();
         _boxCollider2D = GetComponent<BoxCollider2D>();
+        _playerAnimator = GetComponent<Animator>();
         _gravityVector = new Vector2(0, -Physics2D.gravity.y);
     }
 
@@ -39,11 +54,10 @@ public class PlayerController : MonoBehaviour
 
     private void Move(Vector2 direction)
     {
-        Vector2 moveOffset = GetDirection(direction) * (_moveSpeed * 100 * Time.deltaTime);
         float moveValue = _input.x * _moveSpeed * 100 * Time.deltaTime;
         _playerRigidBody.velocity = new Vector2(moveValue, _playerRigidBody.velocity.y);
+        _playerAnimator.SetFloat(HorizontalValueHash, Math.Abs(_playerRigidBody.velocity.x));
         FlipX();
-
     }
 
     private void FlipX()
@@ -60,6 +74,7 @@ public class PlayerController : MonoBehaviour
         }
 
         transform.localScale = characterLocalScale;
+        _playerText.transform.localScale = characterLocalScale;
     }
 
     private void Jump()
@@ -70,7 +85,7 @@ public class PlayerController : MonoBehaviour
             _isJumping = true;
             _jumpCounter = 0;
         }
-        
+
         if (_playerRigidBody.velocity.y > 0 && _isJumping)
         {
             _jumpCounter += Time.deltaTime;
@@ -90,6 +105,8 @@ public class PlayerController : MonoBehaviour
             _playerRigidBody.velocity += _gravityVector * currentJumpMultiplier * Time.deltaTime;
         }
         
+        _playerAnimator.SetBool(IsInAirHash, !IsGrounded());
+
         if (_playerRigidBody.velocity.y < 0)
         {
             _playerRigidBody.velocity -= _gravityVector * (_fallMultiplier * Time.deltaTime);
@@ -102,8 +119,7 @@ public class PlayerController : MonoBehaviour
 
             if (_playerRigidBody.velocity.y > 0)
             {
-                _playerRigidBody.velocity =
-                    new Vector2(_playerRigidBody.velocity.x, _playerRigidBody.velocity.y * 0.8f);
+                _playerRigidBody.velocity = new Vector2(_playerRigidBody.velocity.x, _playerRigidBody.velocity.y * 0.8f);
             }
         }
     }
@@ -127,9 +143,43 @@ public class PlayerController : MonoBehaviour
         return project;
     }
 
+    public void ShowStaticText(string text)
+    {
+        if (_corShowText != null)
+        {
+            StopCoroutine(_corShowText);
+            _corShowText = null;
+        }
+
+        _corShowText = StartCoroutine(CorShowText(text));
+    }
+
+    public void ShowFlyText(string text)
+    {
+        if (_corShowText != null)
+        {
+            StopCoroutine(_corShowText);
+            _corShowText = null;
+        }
+        
+        _playerText.text = text;
+        _textAnimator.SetTrigger(TextFly);
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireCube(transform.position + Vector3.down * 10, Vector3.one * 15);
+    }
+
+    private IEnumerator CorShowText(string text)
+    {
+        float waitTime = text.Length;
+        var waiter = new WaitForSeconds(waitTime);
+        _playerText.text = text;
+        var color = _playerText.color;
+        _playerText.color = Color.white;
+        yield return waiter;
+        _playerText.color = color;
     }
 }

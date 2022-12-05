@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    private const float MinLevelEdge = -33f;
+    private const float MinLevelEdge = -55f;
     private const float MaxLevelEdge = 385;
     
     [SerializeField] private Transform _target;
