@@ -60,7 +60,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            _player.ShowStaticText("Need more");
+            _uiGame.ShowInfoText("Need more hearts");
         }
         
         Debug.Log(message);

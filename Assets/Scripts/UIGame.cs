@@ -10,7 +10,10 @@ public class UIGame : MonoBehaviour
     [SerializeField] private PauseMenu _pauseMenu;
     [SerializeField] private RectTransform _finishPopup;
     [SerializeField] private RectTransform _tutorialView;
+    [SerializeField] private TextMeshProUGUI _infoText;
 
+    private Coroutine _corShowText;
+    
     private void Awake()
     {
         UpdateHeartCountUI(0);
@@ -40,5 +43,26 @@ public class UIGame : MonoBehaviour
     public void ShowTutorial()
     {
         _tutorialView.gameObject.SetActive(true);
+    }
+
+    public void ShowInfoText(string text)
+    {
+        if (_corShowText != null)
+        {
+            StopCoroutine(_corShowText);
+            _corShowText = null;
+        }
+
+        _corShowText = StartCoroutine(CorShowText(text));
+    }
+    
+    private IEnumerator CorShowText(string text)
+    {
+        float waitTime = text.Length * 0.25f;
+        var waiter = new WaitForSeconds(waitTime);
+        _infoText.text = text;
+        yield return waiter;
+        _infoText.text = string.Empty;
+        _corShowText = null;
     }
 }

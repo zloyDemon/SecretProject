@@ -30,8 +30,7 @@ public class PlayerController : MonoBehaviour
     private float _jumpCounter;
     private BoxCollider2D _boxCollider2D;
     private Animator _playerAnimator;
-    private Coroutine _corShowText;
-    
+
     private void Awake()
     {
         Physics2D.queriesStartInColliders = false;
@@ -143,25 +142,8 @@ public class PlayerController : MonoBehaviour
         return project;
     }
 
-    public void ShowStaticText(string text)
-    {
-        if (_corShowText != null)
-        {
-            StopCoroutine(_corShowText);
-            _corShowText = null;
-        }
-
-        _corShowText = StartCoroutine(CorShowText(text));
-    }
-
     public void ShowFlyText(string text)
     {
-        if (_corShowText != null)
-        {
-            StopCoroutine(_corShowText);
-            _corShowText = null;
-        }
-        
         _playerText.text = text;
         _textAnimator.SetTrigger(TextFly);
     }
@@ -170,16 +152,5 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireCube(transform.position + Vector3.down * 10, Vector3.one * 15);
-    }
-
-    private IEnumerator CorShowText(string text)
-    {
-        float waitTime = text.Length;
-        var waiter = new WaitForSeconds(waitTime);
-        _playerText.text = text;
-        var color = _playerText.color;
-        _playerText.color = Color.white;
-        yield return waiter;
-        _playerText.color = color;
     }
 }
