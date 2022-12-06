@@ -83,6 +83,7 @@ public class PlayerController : MonoBehaviour
             _playerRigidBody.velocity = new Vector2(_playerRigidBody.velocity.x, _jumpPower);
             _isJumping = true;
             _jumpCounter = 0;
+            GameManager.Instance.PlayJumpSound();
         }
 
         if (_playerRigidBody.velocity.y > 0 && _isJumping)
@@ -146,6 +147,12 @@ public class PlayerController : MonoBehaviour
     {
         _playerText.text = text;
         _textAnimator.SetTrigger(TextFly);
+    }
+
+    public void ResetCharacterMove()
+    {
+        _playerRigidBody.velocity = Vector2.zero;
+        _playerAnimator.SetFloat(HorizontalValueHash, 0f);
     }
 
     private void OnDrawGizmos()

@@ -58,7 +58,7 @@ public class UIGame : MonoBehaviour
     
     private IEnumerator CorShowText(string text)
     {
-        float waitTime = text.Length * 0.25f;
+        float waitTime = text.Length * 0.1f;
         var waiter = new WaitForSeconds(waitTime);
         _infoText.text = text;
         yield return waiter;
